@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
-      "value": "GEN-UNIQUE"
+      "value": "vfsadmins"
     },
     "adminPassword": {
-      "value": "GEN-PASSWORD"
+      "value": "rhubarbs"
     },
     "dnsLabelPrefix": {
-      "value": "GEN-UNIQUE"
+      "value": "vm-me-neu-vfs"
     }
   }
 }
