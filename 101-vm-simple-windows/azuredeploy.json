@@ -38,7 +38,7 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2_v3",
+      "defaultValue": "Standard_B8MS",
       "metadata": {
         "description": "Size of the virtual machine."
       }
@@ -52,7 +52,7 @@
     }
   },
   "variables": {
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'savfsvm')]",
     "nicName": "nic1-me-neu-vfs",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "Snet-me-nue-vfs",
@@ -61,7 +61,11 @@
     "vmName": "vm-me-neu-vfs",
     "virtualNetworkName": "vnet1-me-neu-vfs",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
-    "networkSecurityGroupName": "nsg-me-neu-vfs"
+    "networkSecurityGroupName": "nsg-me-neu-vfs",
+    "avSetName": "avail-me-neu-vfs",
+    "osDiskName": "diskos-me-neu-vfs",
+    "OSDataDiskName" :"diskdata-me-neu-vfs"
+
   },
   "resources": [
     {
@@ -165,13 +169,27 @@
       }
     },
     {
+    "type": "Microsoft.Compute/availabilitySets",
+    "apiVersion": "2018-10-01",
+    "location": "[resourceGroup().location]",
+    "name": "[variables('avSetName')]",
+    "properties": {
+        "PlatformUpdateDomainCount": 3,
+        "PlatformFaultDomainCount": 2
+    },
+    "sku": {
+        "name": "Aligned"
+    }
+},
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
       "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets/', variables('avSetName'))]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -190,11 +208,17 @@
             "version": "latest"
           },
           "osDisk": {
-            "createOption": "FromImage"
+            "osType": "Windows",
+            "name": "[variables('OSDiskName')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
           },
           "dataDisks": [
             {
-              "diskSizeGB": 1023,
+              "diskSizeGB": 512,
+              "name": "[variables('OSDataDiskName')]",
               "lun": 0,
               "createOption": "Empty"
             }
@@ -214,6 +238,7 @@
           }
         }
       }
+    }
     }
   ],
   "outputs": {
