@@ -195,6 +195,9 @@
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
+          "availabilitySet": {
+             "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('avSetName'))]"
+       },
         "osProfile": {
           "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
@@ -214,15 +217,20 @@
             "createOption": "FromImage",
             "managedDisk": {
               "storageAccountType": "StandardSSD_LRS"
+            }
           },
           "dataDisks": [
             {
               "diskSizeGB": 512,
               "name": "[variables('OSDataDiskName')]",
               "lun": 0,
-              "createOption": "Empty"
+              "createOption": "Empty",
+               "managedDisk": {
+                 "storageAccountType": "StandardSSD_LRS"
+    }
             }
           ]
+          
         },
         "networkProfile": {
           "networkInterfaces": [
@@ -239,7 +247,7 @@
         }
       }
     }
-    }
+    
   ],
   "outputs": {
     "hostname": {
